@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
+import com.proyecto.vehiculos.dto.UploadPdfDTO;
+import java.util.Base64;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -227,6 +230,38 @@ public class VehiculoService {
 
     public List<Vehiculo> buscarPorNombreDocumento(String nombre) {
         return vehiculoRepository.findByNombreDocumento(nombre);
+    }
+
+    @Transactional
+    public List<DocumentoVehiculo> cargarPdfs(UploadPdfDTO dto) {
+
+        if (dto.getDocumentos() == null || dto.getDocumentos().isEmpty()) {
+            throw new RuntimeException("Debe enviar al menos un documento con PDF.");
+        }
+
+        List<DocumentoVehiculo> resultado = new ArrayList<>();
+
+        for (UploadPdfDTO.PdfItemDTO item : dto.getDocumentos()) {
+
+            // 1. Buscar la relación documento-vehículo
+            DocumentoVehiculo dv = dvRepository.findById(item.getDocumentoVehiculoId())
+                    .orElseThrow(() -> new RuntimeException(
+                            "DocumentoVehiculo no encontrado con id: "
+                                    + item.getDocumentoVehiculoId()));
+
+            // 2. Decodificar Base64 → bytes y guardar
+            if (item.getPdfBase64() == null || item.getPdfBase64().isBlank()) {
+                throw new RuntimeException(
+                        "El PDF en Base64 no puede estar vacío para el id: "
+                                + item.getDocumentoVehiculoId());
+            }
+
+            byte[] pdfBytes = Base64.getDecoder().decode(item.getPdfBase64());
+            dv.setPdf(pdfBytes);
+            resultado.add(dvRepository.save(dv));
+        }
+
+        return resultado;
     }
 }
 

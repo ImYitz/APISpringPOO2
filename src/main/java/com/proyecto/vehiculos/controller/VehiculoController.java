@@ -2,6 +2,7 @@ package com.proyecto.vehiculos.controller;
 
 import com.proyecto.vehiculos.dto.AgregarDocumentoDTO;
 import com.proyecto.vehiculos.dto.UpdateDocumentoVehiculoDTO;
+import com.proyecto.vehiculos.dto.UploadPdfDTO;
 import com.proyecto.vehiculos.dto.VehiculoRequestDTO;
 import com.proyecto.vehiculos.entity.DocumentoVehiculo;
 import com.proyecto.vehiculos.entity.Vehiculo;
@@ -110,6 +111,11 @@ public class VehiculoController {
     @GetMapping("/documento/nombre/{nombre}")
     public ResponseEntity<List<Vehiculo>> buscarPorNombreDocumento(@PathVariable String nombre) {
         return ResponseEntity.ok(vehiculoService.buscarPorNombreDocumento(nombre));
+    }
+
+    @PostMapping("/cargar-pdf")
+    public ResponseEntity<?> cargarPdf(@RequestBody UploadPdfDTO dto) {
+        return ResponseEntity.ok(vehiculoService.cargarPdfs(dto));
     }
 }
 
