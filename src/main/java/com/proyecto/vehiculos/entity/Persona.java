@@ -33,4 +33,11 @@ public class Persona {
     @ManyToOne
     @JoinColumn(name = "tipo_persona", nullable = false)
     private TipoPersona tipoPersona;
+
+    @Lob
+    @Column(name = "licencia", columnDefinition = "LONGBLOB")
+    private byte[] licencia;
+
+    @Column(name = "fecha_vigencia_licencia")
+    private java.time.LocalDate fechaVigenciaLicencia;
 }
