@@ -22,4 +22,9 @@ public interface DocumentoVehiculoRepository extends JpaRepository<DocumentoVehi
     List<Vehiculo> findVehiculosConDocumentosPorVencer(
             @Param("hoy") LocalDate hoy,
             @Param("limite") LocalDate limite);
+
+    @Query("SELECT dv FROM DocumentoVehiculo dv WHERE dv.fechaVencimiento IS NOT NULL " +
+            "AND dv.fechaVencimiento < :hoy " +
+            "AND dv.estado.nombre <> 'Vencido'")
+    List<DocumentoVehiculo> findDocumentosVencidos(@Param("hoy") LocalDate hoy);
 }
