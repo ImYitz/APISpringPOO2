@@ -1,7 +1,15 @@
 package com.proyecto.vehiculos.service;
 
+import com.proyecto.vehiculos.dto.TrayectoRequestDTO;
+import com.proyecto.vehiculos.entity.Persona;
 import com.proyecto.vehiculos.entity.Trayecto;
+import com.proyecto.vehiculos.entity.Usuario;
+import com.proyecto.vehiculos.entity.Vehiculo;
+import com.proyecto.vehiculos.repository.PersonaRepository;
 import com.proyecto.vehiculos.repository.TrayectoRepository;
+import com.proyecto.vehiculos.repository.UsuarioRepository;
+import com.proyecto.vehiculos.repository.VehiculoRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +20,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RutaService {
 
+    private final VehiculoRepository vehiculoRepository;
+    private final PersonaRepository personaRepository;
+    private final UsuarioRepository usuarioRepository;
     private final TrayectoRepository trayectoRepository;
 
     // ─── 1. Trayectos de una ruta ordenados por parada ────────────────────
@@ -81,5 +92,29 @@ public class RutaService {
     // GET /api/rutas/no-habilitadas
     public List<Trayecto> obtenerRutasNoHabilitadas() {
         return trayectoRepository.findRutasNoHabilitadas();
+    }
+
+    @Transactional
+    public Trayecto crearTrayecto(TrayectoRequestDTO dto) {
+
+        Persona persona = personaRepository.findById(dto.getPersonaId())
+                .orElseThrow(() -> new RuntimeException("Persona no encontrada: " + dto.getPersonaId()));
+
+        Vehiculo vehiculo = vehiculoRepository.findById(dto.getVehiculoId())
+                .orElseThrow(() -> new RuntimeException("Vehículo no encontrado: " + dto.getVehiculoId()));
+
+        Usuario usuario = usuarioRepository.findById(dto.getLoginId())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + dto.getLoginId()));
+
+        Trayecto t = new Trayecto();
+        t.setPersona(persona);
+        t.setVehiculo(vehiculo);
+        t.setCodigoRuta(dto.getCodigoRuta().toUpperCase());
+        t.setUbicacion(dto.getUbicacion());
+        t.setOrdenParada(dto.getOrdenParada());
+        t.setLatitud(dto.getLatitud());   // null = geocodificación automática
+        t.setLongitud(dto.getLongitud());
+        t.setLogin(usuario);
+        return trayectoRepository.save(t);
     }
 }

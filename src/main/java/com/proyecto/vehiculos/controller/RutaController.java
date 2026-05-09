@@ -1,5 +1,6 @@
 package com.proyecto.vehiculos.controller;
 
+import com.proyecto.vehiculos.dto.TrayectoRequestDTO;
 import com.proyecto.vehiculos.entity.Trayecto;
 import com.proyecto.vehiculos.service.RutaService;
 import lombok.RequiredArgsConstructor;
@@ -45,5 +46,10 @@ public class RutaController {
     @GetMapping("/no-habilitadas")
     public ResponseEntity<List<Trayecto>> obtenerNoHabilitadas() {
         return ResponseEntity.ok(rutaService.obtenerRutasNoHabilitadas());
+    }
+
+    @PostMapping
+    public ResponseEntity<Trayecto> crearTrayecto(@RequestBody TrayectoRequestDTO dto) {
+        return ResponseEntity.ok(rutaService.crearTrayecto(dto));
     }
 }
